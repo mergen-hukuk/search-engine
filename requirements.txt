@@ -1,0 +1,4 @@
+markitdown
+sparknlp
+pyspark
+numpy
