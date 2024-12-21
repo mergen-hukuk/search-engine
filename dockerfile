@@ -11,12 +11,12 @@ RUN apt-get update && apt-get install -y \
     curl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-
-RUN pip install markitdown
-
-# Set environment variables if needed
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
+
+COPY . /app
+WORKDIR /app
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # Set Bash as the entry point
 ENTRYPOINT ["/bin/bash"]
