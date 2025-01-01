@@ -49,6 +49,10 @@ yake = YakeKeywordExtraction() \
     .setInputCols(["token"]) \
     .setOutputCol("keywords") \
     .setMinNGrams(1) \
+    .setMaxNGrams(3) \
+    .setStopWords(YakeKeywordExtraction.loadDefaultStopWords("turkish")) \
+    .setThreshold(0.6) \
+    .setNKeywords(20)
 
 # Create the pipeline
 pipeline = Pipeline(stages=[
@@ -65,6 +69,7 @@ result = model.transform(data)
 # Extract and display the keywords with their scores
 keywords_df = result.selectExpr("explode(arrays_zip(keywords.result, keywords.metadata)) as resultTuples") \
     .selectExpr("resultTuples.result as keyword", "resultTuples.metadata.score as score") \
+    .dropDuplicates(["keyword"]) \
     .orderBy("score")
 
 keywords_df.show(truncate=False)
