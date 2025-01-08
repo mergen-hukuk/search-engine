@@ -1,9 +1,8 @@
 # Data
 docs/
 md_docs/
-rag/
-sample_data/
 *.npy
+embeddings/
 
 # cursor
 .cursorignore

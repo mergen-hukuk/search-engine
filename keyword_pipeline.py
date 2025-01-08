@@ -6,28 +6,22 @@ from markitdown import MarkItDown
 import json
 import glob
 import tempfile
+from pathlib import Path
 
 # Start Spark NLP session
 spark = sparknlp.start()
 
 # Function to extract text using MarkItDown
-def extract_text_from_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        # Create temporary HTML file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as temp_file:
-            temp_file.write(data['data'].encode('utf-8'))
-            temp_file_path = temp_file.name
-        
-        # Convert using MarkItDown
-        md = MarkItDown()
-        md_result = md.convert(temp_file_path)
-        return md_result.text_content
+def extract_text_from_markdown(file_path):
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return file.read()
 
-# Read all JSON files from sample_data directory
-json_files = glob.glob('sample_data/*.json')
-texts = [extract_text_from_json(file) for file in json_files]
-print(texts)
+# Update file reading section
+markdown_files = glob.glob('md_docs/*.md')  # Change path to md_docs
+
+# get the first 50 files
+markdown_files = markdown_files[:50]
+texts = [extract_text_from_markdown(file) for file in markdown_files]
 # Create DataFrame with the legal texts
 data = spark.createDataFrame([(text,) for text in texts]).toDF("text")
 
@@ -55,8 +49,8 @@ stemmer = Stemmer() \
 yake = YakeKeywordExtraction() \
     .setInputCols(["stemmed"]) \
     .setOutputCol("keywords") \
-    .setMinNGrams(1) \
-    .setMaxNGrams(3) \
+    .setMinNGrams(2) \
+    .setMaxNGrams(5) \
     .setStopWords(YakeKeywordExtraction.loadDefaultStopWords("turkish")) \
     .setThreshold(0.6) \
     .setNKeywords(20)
