@@ -1,3 +1,14 @@
+# Data
+docs/
+md_docs/
+rag/
+sample_data/
+*.npy
+
+# cursor
+.cursorignore
+
+
 # macos
 .DS_Store
 

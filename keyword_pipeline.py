@@ -1,6 +1,6 @@
 import sparknlp
 from sparknlp.base import DocumentAssembler
-from sparknlp.annotator import SentenceDetector, Tokenizer, YakeKeywordExtraction
+from sparknlp.annotator import SentenceDetector, Tokenizer, YakeKeywordExtraction, Stemmer
 from pyspark.ml import Pipeline
 from markitdown import MarkItDown
 import json
@@ -45,8 +45,15 @@ tokenizer = Tokenizer() \
     .setOutputCol("token") \
     .setContextChars(["(", ")", "?", "!", ".", ","])
 
-yake = YakeKeywordExtraction() \
+# Add Stemmer annotator
+stemmer = Stemmer() \
     .setInputCols(["token"]) \
+    .setOutputCol("stemmed") \
+    .setLanguage("turkish")
+
+# Update YAKE to use stemmed tokens
+yake = YakeKeywordExtraction() \
+    .setInputCols(["stemmed"]) \
     .setOutputCol("keywords") \
     .setMinNGrams(1) \
     .setMaxNGrams(3) \
@@ -59,6 +66,7 @@ pipeline = Pipeline(stages=[
     document_assembler,
     sentence_detector,
     tokenizer,
+    stemmer,
     yake
 ])
 
