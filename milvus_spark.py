@@ -70,36 +70,38 @@ def get_document_embedding(file_path: str) -> Tuple[str, List[float], str]:
 
 def process_and_store_embeddings(folder_path: str, spark: SparkSession):
     md_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.md')]
-    md_files = md_files[:20]
     
-    embeddings_data = []
-    for file_path in tqdm(md_files, desc="Processing files"):
-        try:
-            doc_id, embedding, content = get_document_embedding(file_path)
-            embeddings_data.append((doc_id, content, embedding))
-        except Exception as e:
-            print(f"Error processing {file_path}: {str(e)}")
+    for i in range(0, len(md_files), 100):
+        md_files_batch = md_files[i:i+100]
     
-    schema = StructType([
-        StructField("id", StringType(), False),
-        StructField("text", StringType(), True),
-        StructField("vec", ArrayType(FloatType()), False)
-    ])
-    
-    df = spark.createDataFrame(embeddings_data, schema)
-    
-    df.write \
-        .mode("append") \
-        .option("milvus.host", "localhost") \
-        .option("milvus.port", default_server.listen_port) \
-        .option("milvus.timeout", "5") \
-        .option("milvus.database.name", "default") \
-        .option("milvus.collection.name", "emb") \
-        .option("milvus.collection.vectorField", "vec") \
-        .option("milvus.collection.vectorDim", str(len(embeddings_data[0][2]))) \
-        .option("milvus.collection.primaryKeyField", "id") \
-        .format("milvus") \
-        .save()
+        embeddings_data = []
+        for file_path in tqdm(md_files_batch, desc="Processing files"):
+            try:
+                doc_id, embedding, content = get_document_embedding(file_path)
+                embeddings_data.append((doc_id, content, embedding))
+            except Exception as e:
+                print(f"Error processing {file_path}: {str(e)}")
+        
+        schema = StructType([
+            StructField("id", StringType(), False),
+            StructField("text", StringType(), True),
+            StructField("vec", ArrayType(FloatType()), False)
+        ])
+        
+        df = spark.createDataFrame(embeddings_data, schema)
+        
+        df.write \
+            .mode("append") \
+            .option("milvus.host", "localhost") \
+            .option("milvus.port", default_server.listen_port) \
+            .option("milvus.timeout", "5") \
+            .option("milvus.database.name", "default") \
+            .option("milvus.collection.name", "emb") \
+            .option("milvus.collection.vectorField", "vec") \
+            .option("milvus.collection.vectorDim", str(len(embeddings_data[0][2]))) \
+            .option("milvus.collection.primaryKeyField", "id") \
+            .format("milvus") \
+            .save()
 
 def main():
     spark = None
