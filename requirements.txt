@@ -2,3 +2,5 @@ markitdown
 sparknlp
 pyspark
 numpy
+milvus 
+pymilvus

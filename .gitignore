@@ -1,3 +1,12 @@
+# Data
+docs/
+md_docs/
+rag/
+sample_data/
+
+# cursor
+.cursorignore
+
 # macos
 .DS_Store
 
