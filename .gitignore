@@ -4,6 +4,8 @@ md_docs/
 *.npy
 embeddings/
 
+spark-milvus-1.0.0-SNAPSHOT.jar
+
 # cursor
 .cursorignore
 

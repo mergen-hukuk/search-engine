@@ -8,6 +8,14 @@ from milvus import default_server
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, ArrayType, FloatType
 from pymilvus import connections, utility, Collection
+from dotenv import load_dotenv
+
+# try to read from the .env.example file
+load_dotenv()
+SPARK_MILVUS_PATH = os.getenv("SPARK_MILVUS_PATH")
+
+if not SPARK_MILVUS_PATH:
+    raise ValueError("SPARK_MILVUS_PATH is not set in the .env file")
 
 def setup_milvus_and_spark():
     default_server.stop()
@@ -42,7 +50,7 @@ def setup_milvus_and_spark():
     
     spark = SparkSession.builder \
         .appName("Milvus-Spark-Integration") \
-        .config("spark.jars", "/Users/emircan/spark-milvus-1.0.0-SNAPSHOT.jar") \
+        .config("spark.jars", SPARK_MILVUS_PATH) \
         .config("spark.driver.memory", "4g") \
         .getOrCreate()
         
@@ -71,8 +79,8 @@ def get_document_embedding(file_path: str) -> Tuple[str, List[float], str]:
 def process_and_store_embeddings(folder_path: str, spark: SparkSession):
     md_files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if f.endswith('.md')]
     
-    for i in range(0, len(md_files), 100):
-        md_files_batch = md_files[i:i+100]
+    for i in range(0, len(md_files), 50):
+        md_files_batch = md_files[i:i+50]
     
         embeddings_data = []
         for file_path in tqdm(md_files_batch, desc="Processing files"):
@@ -94,7 +102,6 @@ def process_and_store_embeddings(folder_path: str, spark: SparkSession):
             .mode("append") \
             .option("milvus.host", "localhost") \
             .option("milvus.port", default_server.listen_port) \
-            .option("milvus.timeout", "5") \
             .option("milvus.database.name", "default") \
             .option("milvus.collection.name", "emb") \
             .option("milvus.collection.vectorField", "vec") \
@@ -106,7 +113,9 @@ def process_and_store_embeddings(folder_path: str, spark: SparkSession):
 def main():
     spark = None
     try:
+        print("Setting up Milvus and Spark...")
         spark = setup_milvus_and_spark()
+        print("Processing and storing embeddings...")
         process_and_store_embeddings("md_docs", spark)
         print("Processing completed successfully")
     finally:
