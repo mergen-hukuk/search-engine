@@ -1,3 +1,15 @@
+"""
+This module integrates Milvus vector database with Apache Spark to process and store document embeddings.
+It provides functionality to:
+- Set up a local Milvus server and Spark session
+- Generate embeddings for markdown documents using the Ollama API
+- Store document embeddings in Milvus using Spark for efficient batch processing
+- Create and manage a Milvus collection with appropriate schema and index for vector similarity search
+
+The module uses the snowflake-arctic-embed2 model for generating embeddings and stores them in a
+Milvus collection named 'emb' with IP (Inner Product) metric type for similarity search.
+"""
+
 import ollama
 import os
 from pathlib import Path

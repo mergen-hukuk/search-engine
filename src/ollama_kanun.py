@@ -1,3 +1,15 @@
+"""
+This module demonstrates the use of Ollama's chat API to parse and extract law references from Turkish legal texts.
+It uses a custom function tool to identify and structure legal references including:
+- Law numbers (e.g., 4857)
+- Law names (e.g., İş Kanunu)
+- Article numbers (e.g., 63)
+
+The module uses the llama3.2:1b model with a specialized system prompt to ensure consistent
+parsing of legal references into a structured JSON format. If no legal reference is found,
+it defaults to returning 0 for numeric fields.
+"""
+
 import ollama
 
 inp = """\

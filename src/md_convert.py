@@ -1,3 +1,17 @@
+"""
+This module provides batch processing functionality to convert HTML content stored in JSON files to Markdown format.
+It utilizes Apache Spark for parallel processing and the MarkItDown library for HTML to Markdown conversion.
+Key features:
+- Processes JSON files containing HTML content in batches of 1000
+- Uses Spark's distributed computing capabilities for efficient parallel processing
+- Handles temporary file management for the conversion process
+- Saves converted Markdown files with the same base name as the input files
+- Provides error handling and progress reporting for each conversion
+
+The module processes files from a 'docs' directory and saves the converted markdown files
+to an 'md_docs' directory, maintaining the original file names with .md extension.
+"""
+
 from pyspark.sql import SparkSession
 from markitdown import MarkItDown
 import tempfile

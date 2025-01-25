@@ -1,3 +1,17 @@
+"""
+This module implements a Spark NLP pipeline for extracting keywords from Turkish markdown documents.
+It uses YAKE (Yet Another Keyword Extractor) algorithm with Turkish language support and stemming.
+Key features:
+- Processes markdown files using Spark NLP's distributed processing capabilities
+- Implements a multi-stage pipeline including sentence detection, tokenization, and stemming
+- Uses Turkish-specific language processing including Turkish stop words
+- Extracts 2-5 word phrases (n-grams) as keywords
+- Ranks keywords based on their importance score (lower score means higher importance)
+
+The pipeline processes files from the 'md_docs' directory and outputs a DataFrame
+containing extracted keywords with their corresponding importance scores.
+"""
+
 import sparknlp
 from sparknlp.base import DocumentAssembler
 from sparknlp.annotator import SentenceDetector, Tokenizer, YakeKeywordExtraction, Stemmer
